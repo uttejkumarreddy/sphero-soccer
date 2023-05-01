@@ -111,8 +111,13 @@ class SoccerEnvironment(gym.Env):
 
 	def generate_rewards(self, model, data):
 		self.ball.update_state(model, data, self)
+
+		rewards = []
 		for player in self.players:
 			player.compute_reward(model, data, self)
+			rewards.append(player.reward)
+
+		return rewards
 		
 	def perform_action(self, model, data, player, action):
 		angle, speed = action
@@ -130,7 +135,7 @@ class SoccerEnvironment(gym.Env):
 
 		obs = self.generate_state_space(model, data)
 		rewards = self.generate_rewards(model, data)
-		done = False
+		done = self.ball._goal
 		info = {}
 
 		return obs, rewards, done, info
