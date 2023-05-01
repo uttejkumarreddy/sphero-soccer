@@ -12,7 +12,7 @@ class SoccerEnvironment(gym.Env):
 		self.players_per_team = players_per_team
 		self.randomize_player_positions = randomize_player_positions
 
-		# Angle of rotation, Direction of movement
+		# Angle of rotation, Direction of movement   
 		self.action_space = spaces.Box(
 			low=np.array([-np.pi, 0], dtype=np.float32),
 			high=np.array([np.pi, 1], dtype=np.float32),
@@ -40,6 +40,10 @@ class SoccerEnvironment(gym.Env):
 		for line_touch in self.lines_touch:
 			self.geom_id_lines_touch[line_touch] = mj.mj_name2id(model, mj.mjtObj.mjOBJ_GEOM, line_touch)
 
+		self.goal_A_point_a = np.array([-45, 5, 0])
+		self.goal_A_point_b = np.array([-45, -5, 0])
+		self.goal_B_point_a = np.array([45, 5, 0])
+		self.goal_B_point_b = np.array([45, -5, 0])
 		self.lines_goal = ["touch_line_goal_A", "touch_line_goal_B"]
 		self.geom_id_lines_goal = {}
 		for line_goal in self.lines_goal:
@@ -56,16 +60,16 @@ class SoccerEnvironment(gym.Env):
 			self.player_names_Team_B.append(self.prefix_Team_B + str(i))
 
 		self.players_Team_A = []
+		self.players_Team_A_geom_ids = []
 		self.players_Team_B = []
+		self.players_Team_B_geom_ids = []
 		self.players = [] 
 		
 		self.ball = None
 
-		self.time = 0
 		self.players_geom_ids = []
 
 	def reset(self, model, data):
-		self.time = 0
 		for player in self.players:
 			player.reset(model, data)
 		self.ball.reset(model, data)
@@ -76,9 +80,11 @@ class SoccerEnvironment(gym.Env):
 	def initialize_players_and_ball(self, model, data):
 		for name in self.player_names_Team_A:
 			self.players_Team_A.append(SoccerPlayer(model, data, name, 'A', self))
+			self.players_Team_A_geom_ids.append(self.players_Team_A[-1].id_geom)
 
 		for name in self.player_names_Team_B:
 			self.players_Team_B.append(SoccerPlayer(model, data, name, 'B', self))
+			self.players_Team_B_geom_ids.append(self.players_Team_B[-1].id_geom)
 
 		self.players = self.players_Team_A + self.players_Team_B
 		self.ball = SoccerBall(model, data, 'ball')
@@ -105,6 +111,8 @@ class SoccerEnvironment(gym.Env):
 
 	def generate_rewards(self, model, data):
 		self.ball.update_state(model, data, self)
+		for player in self.players:
+			player.compute_reward(model, data, self)
 		
 	def perform_action(self, model, data, player, action):
 		angle, speed = action

@@ -4,9 +4,7 @@ import numpy as np
 import os
 import torch
 
-from SoccerPlayer import SoccerPlayer
 from SoccerEnvironment import SoccerEnvironment
-from SoccerBall import SoccerBall
 
 class Simulation:
 	def __init__(self, envFile, simTime, players_per_team, randomize_player_positions = False):
@@ -139,6 +137,7 @@ class Simulation:
 			glfw.poll_events()
 
 	def reset(self):
+		self.time = 0
 		mj.mj_resetData(self.model, self.data)
 		self.environment.reset(self.model, self.data)
 		mj.mj_forward(self.model, self.data)

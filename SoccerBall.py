@@ -13,6 +13,7 @@ class SoccerBall():
 		self._hit = False
 
 		# TODO: Update the following attributes
+		self._possession = None
 		self._repossessed = False
 		self._intercepted = False
 
@@ -48,6 +49,15 @@ class SoccerBall():
 	def get_state(self, model, data):
 		return np.concatenate((self.get_position(model, data)[:2], self.get_velocity(model, data)[:2])).tolist()
 
+	def is_boundary_line_touched(self):
+		return self._outside
+
+	def is_kicked_by_player(self, player_geom_id):
+		return self._hit == player_geom_id
+
+	def is_goal_line_touched(self):
+		return self._goal
+
 	def update_state(self, model, data, env):
 		contacts = data.contact
 		for c in contacts:
@@ -55,6 +65,10 @@ class SoccerBall():
 			if c.geom1 == self.id_geom and c.geom2 in env.players_geom_ids:
 				self._last_hit = self._hit
 				self._hit = c.geom2
+				if self._hit in env.players_Team_A_geom_ids:
+					self._possession = "A"
+				elif self._hit in env.players_Team_B_geom_ids:
+					self._possession = "B"
 
 			# Is the ball outside the boundaries
 			if c.geom1 == self.id_geom and c.geom2 in env.geom_id_lines_touch:
@@ -68,14 +82,10 @@ class SoccerBall():
 			else:
 				self._goal = False
 
-	def get_distance_from_goal_A(self, model, data):
-		goal_A_point_a = np.array([-45, 5, 0])
-		goal_A_point_b = np.array([-45, -5, 0])
+	def get_distance_from_goal_A(self, model, data, env):
 		ball_pos = self.get_position(model, data)
-		return (np.linalg.norm(np.cross(p - a, p - b)) / np.linalg.norm(b - a))
+		return (np.linalg.norm(np.cross(p - env.goal_A_point_a, p - env.goal_A_point_b)) / np.linalg.norm(env.goal_A_point_b - env.env.goal_A_point_a))
 
-	def get_distance_from_goal_B(self, model, data):
-		goal_B_point_a = np.array([45, 5, 0])
-		goal_B_point_b = np.array([45, -5, 0])
+	def get_distance_from_goal_B(self, model, data, env):
 		ball_pos = self.get_position(model, data)
-		return (np.linalg.norm(np.cross(p - a, p - b)) / np.linalg.norm(b - a))	
+		return (np.linalg.norm(np.cross(p - env.goal_B_point_a, p - env.goal_B_point_b)) / np.linalg.norm(env.goal_B_point_b - env.env.goal_B_point_a))
