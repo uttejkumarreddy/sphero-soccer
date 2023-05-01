@@ -84,8 +84,8 @@ class SoccerBall():
 
 	def get_distance_from_goal_A(self, model, data, env):
 		ball_pos = self.get_position(model, data)
-		return (np.linalg.norm(np.cross(p - env.goal_A_point_a, p - env.goal_A_point_b)) / np.linalg.norm(env.goal_A_point_b - env.env.goal_A_point_a))
+		return (np.linalg.norm(np.cross(ball_pos - env.goal_A_point_a, ball_pos - env.goal_A_point_b)) / np.linalg.norm(env.goal_A_point_b - env.goal_A_point_a))
 
 	def get_distance_from_goal_B(self, model, data, env):
 		ball_pos = self.get_position(model, data)
-		return (np.linalg.norm(np.cross(p - env.goal_B_point_a, p - env.goal_B_point_b)) / np.linalg.norm(env.goal_B_point_b - env.env.goal_B_point_a))
+		return (np.linalg.norm(np.cross(ball_pos - env.goal_B_point_a, ball_pos - env.goal_B_point_b)) / np.linalg.norm(env.goal_B_point_b - env.goal_B_point_a))

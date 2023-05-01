@@ -82,7 +82,7 @@ class SoccerPlayer():
 		reward_distance_of_ball_to_goal = -0.01 * distance_to_goal
 		self._last_distance_to_goal = distance_to_goal
 
-		player_kicked_ball = env.ball.is_kicked_by_player(model, self.id_geom)
+		player_kicked_ball = env.ball.is_kicked_by_player(self.id_geom)
 		reward_player_kicked_ball = 0
 		if player_kicked_ball:
 			reward_player_kicked_ball = 100
