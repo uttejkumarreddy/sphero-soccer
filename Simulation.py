@@ -3,6 +3,7 @@ from mujoco.glfw import glfw
 import numpy as np
 import os
 import torch
+from DDPG import DDPG
 
 from SoccerEnvironment import SoccerEnvironment
 
@@ -42,6 +43,8 @@ class Simulation:
 		self.context = mj.MjrContext(self.model, mj.mjtFontScale.mjFONTSCALE_150.value)      
 		
 		self.environment = SoccerEnvironment(self.model, self.players_per_team, randomize_player_positions)
+
+		self.agent = DDPG(self.environment.state_size, self.environment.action_size, self.environment.hidden_layers)
 
 		self.time = 0
 
@@ -103,13 +106,14 @@ class Simulation:
 
 	def init_controller(self, model, data):
 		self.environment.initialize_players_and_ball(model, data)
+		self.environment.state_space = self.environment.generate_state_space(model, data)
 
 	def controller(self, model, data):
 		self.time += 1
-		state_space = self.environment.generate_state_space(model, data)
+		state_space = self.environment.state_space
 		actions = self.environment.generate_actions(model, data, state_space)
-		obs, reward, done, info = self.environment.step(model, data, actions)
-			
+		obs, rewards, done, info = self.environment.step(model, data, actions)
+
 	def start(self):
 		self.init_controller(self.model, self.data)
 		self.reset()

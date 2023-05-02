@@ -2,6 +2,7 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 import copy
+import numpy as np
 import random
 
 # Hyperparameters
@@ -54,9 +55,9 @@ class Critic(nn.Module):
         return x
 
 class ReplayBuffer:
-    def __init__(self, buffer_size):
+    def __init__(self):
         self.buffer = []
-        self.max_size = buffer_size
+        self.max_size = BUFFER_SIZE
         self.ptr = 0
         
     def add(self, state, action, reward, next_state, done):
@@ -99,7 +100,6 @@ class DDPG:
 		done = torch.FloatTensor(done).to(device)
 		
 		# Update critic
-		#print(action)
 		Q = self.critic(state, action)
 		next_action = self.target_actor(next_state)
 		next_Q = self.target_critic(next_state, next_action.detach())

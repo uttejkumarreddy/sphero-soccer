@@ -71,13 +71,13 @@ class SoccerBall():
 					self._possession = "B"
 
 			# Is the ball outside the boundaries
-			if c.geom1 == self.id_geom and c.geom2 in env.geom_id_lines_touch:
+			if c.geom1 == self.id_geom and c.geom2 in env.geom_id_lines_touch.values():
 				self._outside = True
 			else:
 				self._outside = False
 
 			# Is the ball at the goal
-			if c.geom1 == self.id_geom and c.geom2 in env.geom_id_lines_goal:
+			if c.geom1 == self.id_geom and c.geom2 in env.geom_id_lines_goal.values():
 				self._goal = True
 			else:
 				self._goal = False

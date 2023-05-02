@@ -13,8 +13,7 @@ class SoccerPlayer():
 		self.id_geom = mj.mj_name2id(model, mj.mjtObj.mjOBJ_GEOM, name)
 		self.id_joint = mj.mj_name2id(model, mj.mjtObj.mjOBJ_JOINT, name)
 		
-		self.size_hidden_layers = 256
-		self.brain = Actor(self.env.observation_space.shape[0], self.env.action_space.shape[0], self.size_hidden_layers)
+		self.brain = Actor(self.env.state_size, self.env.action_size, self.env.hidden_layers)
 
 		# The direction the agent is initially facing
 		self.forward = 0
@@ -68,6 +67,12 @@ class SoccerPlayer():
 		return [x_prime, y_prime, z_prime]
 
 	def compute_reward(self, model, data, env):
+		contacts = data.contact
+		for c in contacts:
+			if c.geom1 == self.id_geom and c.geom2 in env.geom_id_boundaries.values():
+				self.reward = -1000000
+				return self.reward
+
 		pos_sphero = self.get_position(model, data)
 		pos_ball = self.env.ball.get_position(model, data)
 		distance_to_ball = np.linalg.norm(pos_ball - pos_sphero)

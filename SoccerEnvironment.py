@@ -33,6 +33,14 @@ class SoccerEnvironment(gym.Env):
 		high = np.concatenate((np.tile(information_high_agent, number_of_agents), information_high_ball))
 
 		self.observation_space = spaces.Box(low=low, high=high, dtype=np.float32)
+
+		self.state_size = self.observation_space.shape[0]
+		self.action_size = self.action_space.shape[0]
+		self.hidden_layers = 256
+
+		self.state_space = None
+		self.next_state_space = None
+
 		self.device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 
 		self.lines_touch = ["touch_line_outside_1", "touch_line_outside_2", "touch_line_goal_A_right", "touch_line_goal_A_left", "touch_line_goal_B_right", "touch_line_goal_B_left"]
@@ -48,6 +56,11 @@ class SoccerEnvironment(gym.Env):
 		self.geom_id_lines_goal = {}
 		for line_goal in self.lines_goal:
 			self.geom_id_lines_goal[line_goal] = mj.mj_name2id(model, mj.mjtObj.mjOBJ_GEOM, line_goal)
+
+		self.boundaries = ['boundary_1', 'boundary_2', 'boundary_3', 'boundary_4']
+		self.geom_id_boundaries = {}
+		for boundary in self.boundaries:
+			self.geom_id_boundaries[boundary] = mj.mj_name2id(model, mj.mjtObj.mjOBJ_GEOM, boundary)
 
 		self.prefix_Team_A = 'A_'
 		self.prefix_Team_B = 'B_'
@@ -126,7 +139,7 @@ class SoccerEnvironment(gym.Env):
 		new_direction = np.array(new_direction)
 		new_direction /= np.linalg.norm(new_direction)
 
-		velocity = speed * new_direction
+		velocity = speed * new_direction * 7
 		player.set_velocity(model, data, velocity)
 
 	def step(self, model, data, actions):
