@@ -139,7 +139,7 @@ class SoccerEnvironment(gym.Env):
 		new_direction = np.array(new_direction)
 		new_direction /= np.linalg.norm(new_direction)
 
-		velocity = speed * new_direction * 7
+		velocity = speed * new_direction * 3
 		player.set_velocity(model, data, velocity)
 
 	def step(self, model, data, actions):
